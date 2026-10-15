@@ -12,7 +12,7 @@ Same rules as Wend, with its own look:
 
 ## Features
 
-- **100 levels** in 4 chapters (Warm Up → Winding → Twisty → Grandmaster). Paths get windier as you go
+- **200 levels** in 7 chapters (Warm Up → Winding → Twisty → Grandmaster → Serpentine → Labyrinth → Legendary). Paths get windier as you go
 - Tap-to-extend or drag-to-trace selection. A word locks in the moment its path is right
 - Gold "right word, wrong path" feedback, plus a red shake for a wrong word
 - Unlimited hints, with a star rating per level (3 = no hints, 2 = up to 2 hints, 1 = more)
@@ -36,7 +36,7 @@ iOS (macOS only): `cd ios && bundle install && bundle exec pod install && cd .. 
 ```
 App.tsx                      navigation stack + Android back button
 src/theme.ts                 colors, word palette
-src/data/levelData.json         100 generated levels (grid + word paths)
+src/data/levelData.json         200 generated levels (grid + word paths)
 src/data/levels.ts           types, chapters
 src/state/ProgressContext.tsx  AsyncStorage-backed progress
 src/screens/                 Home, Levels, Game

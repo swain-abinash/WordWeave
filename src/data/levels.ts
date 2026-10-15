@@ -29,4 +29,7 @@ export const CHAPTERS: Chapter[] = [
   {title: 'Winding', subtitle: 'More turns', from: 21, to: 50},
   {title: 'Twisty', subtitle: 'Tight corners', from: 51, to: 80},
   {title: 'Grandmaster', subtitle: 'Full serpentine', from: 81, to: 100},
+  {title: 'Serpentine', subtitle: 'Clever bends', from: 101, to: 135},
+  {title: 'Labyrinth', subtitle: 'Maze-like paths', from: 136, to: 170},
+  {title: 'Legendary', subtitle: 'Ultimate maze weaving', from: 171, to: 200},
 ];

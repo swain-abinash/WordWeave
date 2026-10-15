@@ -138,7 +138,7 @@ export default function HomeScreen({onPlay, onLevels}: Props) {
               save
                 ? `${save.found.length} of 4 words found · ${formatTime(save.elapsed)}`
                 : cleared >= TOTAL_LEVELS
-                ? 'All 100 boards cleared'
+                ? `All ${TOTAL_LEVELS} boards cleared`
                 : 'New board · 4 hidden words'
             }
             progress={save ? save.found.length / 4 : 0}

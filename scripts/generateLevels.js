@@ -15,7 +15,7 @@ const fs = require('fs');
 const path = require('path');
 const THEMES = require('./wordBanks');
 
-const LEVEL_COUNT = 100;
+const LEVEL_COUNT = 200;
 const SEED = 20261002;
 const ROWS = 5;
 const COLS = 5;
@@ -54,7 +54,10 @@ const neighbors = i => {
 };
 
 /** Later levels prefer winding paths. */
-const twistFor = level => 0.35 + 0.55 * ((level - 1) / (LEVEL_COUNT - 1));
+const twistFor = level => {
+  if (level <= 100) return 0.35 + 0.55 * ((level - 1) / 99);
+  return 0.65 + 0.30 * ((level - 101) / Math.max(1, LEVEL_COUNT - 101));
+};
 
 /** One word of each length from the theme, none containing another. */
 function pickWords(theme) {
@@ -211,16 +214,33 @@ function buildLevel(id, theme) {
   throw new Error(`Could not build level ${id} for theme ${theme.name}`);
 }
 
-const levels = [];
+const out = path.join(__dirname, '..', 'src', 'data', 'levelData.json');
+let levels = [];
+if (fs.existsSync(out)) {
+  try {
+    const existing = JSON.parse(fs.readFileSync(out, 'utf8'));
+    if (Array.isArray(existing) && existing.length > 0) {
+      levels = existing.slice(0, Math.min(existing.length, LEVEL_COUNT));
+      console.log(`Loaded ${levels.length} existing levels from ${out}`);
+    }
+  } catch (e) {
+    levels = [];
+  }
+}
+
+const startId = levels.length + 1;
 let queue = [];
-let lastTheme = null;
-for (let id = 1; id <= LEVEL_COUNT; id++) {
+let lastTheme = levels.length > 0 ? THEMES.find(t => t.name === levels[levels.length - 1].theme) : null;
+for (let id = startId; id <= LEVEL_COUNT; id++) {
   if (!queue.length) {
     queue = shuffle(THEMES);
     if (queue[0] === lastTheme) queue.push(queue.shift());
   }
   lastTheme = queue.shift();
   levels.push(buildLevel(id, lastTheme));
+  if (id % 25 === 0 || id === LEVEL_COUNT) {
+    console.log(`Generated level ${id}/${LEVEL_COUNT}...`);
+  }
 }
 
 // Sanity checks
@@ -239,7 +259,6 @@ for (const lv of levels) {
   if (seen.size !== open) throw new Error(`L${lv.id}: open tiles not fully covered`);
 }
 
-const out = path.join(__dirname, '..', 'src', 'data', 'levelData.json');
 fs.mkdirSync(path.dirname(out), {recursive: true});
 fs.writeFileSync(out, JSON.stringify(levels));
 console.log(`Wrote ${levels.length} levels to ${out}`);

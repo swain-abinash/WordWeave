@@ -22,8 +22,8 @@ test('renders the home screen', async () => {
   await ReactTestRenderer.act(async () => tree!.unmount());
 });
 
-test('ships 100 Wend-rule levels', () => {
-  expect(LEVELS).toHaveLength(100);
+test('ships 200 Wend-rule levels', () => {
+  expect(LEVELS).toHaveLength(200);
   for (const lv of LEVELS) {
     // four words of lengths 3, 4, 5, 6
     expect(lv.words.map(w => w.word.length)).toEqual([3, 4, 5, 6]);

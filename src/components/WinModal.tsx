@@ -1,5 +1,6 @@
 import React, {useEffect, useRef} from 'react';
 import {Animated, Modal, StyleSheet, Text, View} from 'react-native';
+import {TOTAL_LEVELS} from '../data/levels';
 import {formatTime} from '../state/ProgressContext';
 import {useStyles, useTheme} from '../state/ThemeContext';
 import {fonts, kicker, Palette, radius} from '../theme';
@@ -63,7 +64,7 @@ export default function WinModal({visible, levelId, theme, stars, time, bestTime
           <Text style={styles.kicker}>
             LEVEL {levelId} · {theme.toUpperCase()}
           </Text>
-          <Text style={styles.title}>{isLast ? 'You beat all 100!' : STAR_TEXT[stars]}</Text>
+          <Text style={styles.title}>{isLast ? `You beat all ${TOTAL_LEVELS}!` : STAR_TEXT[stars]}</Text>
           <View style={styles.stars}>
             {starAnims.map((a, i) => (
               <Animated.View
