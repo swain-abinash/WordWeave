@@ -75,7 +75,7 @@ export default function HomeScreen({onPlay, onLevels}: Props) {
 
   const handleVersionTap = () => {
     const now = Date.now();
-    if (now - lastTapRef.current > 1500) {
+    if (now - lastTapRef.current > 3000) {
       setTapCount(1);
     } else {
       const next = tapCount + 1;
@@ -201,6 +201,7 @@ export default function HomeScreen({onPlay, onLevels}: Props) {
           <View style={styles.footer}>
             <PressableScale
               onPress={handleVersionTap}
+              hitSlop={{top: 15, bottom: 15, left: 30, right: 30}}
               accessibilityLabel="App Version">
               <Text style={styles.footerVersion}>
                 {getAppVersionDisplay(env)}
@@ -339,7 +340,7 @@ const makeStyles = (c: Palette) =>
       paddingHorizontal: 24,
       paddingTop: 8,
     },
-    content: {flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24, paddingBottom: 24},
+    content: {flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24, paddingBottom: 84},
     glow: {position: 'absolute', width: 340, height: 340, borderRadius: 170, opacity: c.glowOpacity},
     glowA: {backgroundColor: c.accent, top: -80, left: -120},
     glowB: {backgroundColor: '#FF6B8B', bottom: -120, right: -140},
