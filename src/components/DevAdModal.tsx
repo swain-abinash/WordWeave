@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import {AppEnvironment} from '../config/adConfig';
+import {getFullVersionString} from '../config/version';
 import {adService} from '../services/adService';
 import {useStyles, useTheme} from '../state/ThemeContext';
 import {fonts, kicker, Palette, radius} from '../theme';
@@ -117,6 +118,12 @@ export default function DevAdModal({visible, onClose}: Props) {
                 ? 'Production AdMob Unit IDs (Live ads)'
                 : 'Google Official Sample Test IDs (Safe for testing)'}
             </Text>
+            <View style={styles.statusRow}>
+              <Text style={styles.statusLabel}>App Version:</Text>
+              <Text style={[styles.statusValue, {color: c.accent}]}>
+                {getFullVersionString(env)}
+              </Text>
+            </View>
             <View style={styles.statusRow}>
               <Text style={styles.statusLabel}>Rewarded Ad:</Text>
               <Text

@@ -3,10 +3,13 @@ import {Animated, Easing, ScrollView, StyleSheet, Text, View} from 'react-native
 import {SafeAreaView} from 'react-native-safe-area-context';
 import AdBanner from '../components/AdBanner';
 import BrandMark from '../components/BrandMark';
+import DevAdModal from '../components/DevAdModal';
 import HowToPlay from '../components/HowToPlay';
 import Icon, {IconName} from '../components/Icon';
 import {GradientFill, PressableScale, ThemeToggle} from '../components/ui';
+import {getAppVersionDisplay} from '../config/version';
 import {TOTAL_LEVELS} from '../data/levels';
+import {adService} from '../services/adService';
 import {formatTime, useProgress} from '../state/ProgressContext';
 import {ThemeMode, useStyles, useTheme} from '../state/ThemeContext';
 import {fonts, kicker, Palette, radius, logoPalette} from '../theme';
@@ -59,6 +62,32 @@ export default function HomeScreen({onPlay, onLevels}: Props) {
   const {c, mode, setMode} = useTheme();
   const styles = useStyles(makeStyles);
   const [rules, setRules] = useState(false);
+  const [devModal, setDevModal] = useState(false);
+  const [tapCount, setTapCount] = useState(0);
+  const lastTapRef = useRef(0);
+  const [env, setEnv] = useState(adService.getEnvironment());
+
+  useEffect(() => {
+    return adService.addListener(() => {
+      setEnv(adService.getEnvironment());
+    });
+  }, []);
+
+  const handleVersionTap = () => {
+    const now = Date.now();
+    if (now - lastTapRef.current > 1500) {
+      setTapCount(1);
+    } else {
+      const next = tapCount + 1;
+      setTapCount(next);
+      if (next >= 5) {
+        setDevModal(true);
+        setTapCount(0);
+      }
+    }
+    lastTapRef.current = now;
+  };
+
   const cleared = Object.keys(progress.stars).length;
   const pct = cleared / TOTAL_LEVELS;
   const save = progress.saves[currentLevel];
@@ -168,11 +197,26 @@ export default function HomeScreen({onPlay, onLevels}: Props) {
               })}
             </View>
           </View>
+
+          <View style={styles.footer}>
+            <PressableScale
+              onPress={handleVersionTap}
+              accessibilityLabel="App Version">
+              <Text style={styles.footerVersion}>
+                {getAppVersionDisplay(env)}
+                {env !== 'PROD' && (
+                  <Text style={[styles.envBadge, {color: c.accent}]}> • {env}</Text>
+                )}
+              </Text>
+            </PressableScale>
+            <Text style={styles.footerSub}>Crafted with care · 200 Handcrafted Boards</Text>
+          </View>
         </Animated.View>
       </ScrollView>
 
       <AdBanner placement="bottom" />
       <HowToPlay visible={rules} onClose={() => setRules(false)} />
+      <DevAdModal visible={devModal} onClose={() => setDevModal(false)} />
     </SafeAreaView>
   );
 }
@@ -441,4 +485,28 @@ const makeStyles = (c: Palette) =>
     segBtnOn: {backgroundColor: c.accent},
     segText: {color: c.textDim, fontSize: 13, fontFamily: fonts.semibold, includeFontPadding: false},
     segTextOn: {color: c.onAccent},
+    footer: {
+      alignItems: 'center',
+      marginTop: 20,
+      marginBottom: 16,
+      gap: 4,
+    },
+    footerVersion: {
+      fontFamily: fonts.semibold,
+      fontSize: 12,
+      color: c.textMuted,
+      letterSpacing: 0.5,
+      includeFontPadding: false,
+    },
+    envBadge: {
+      fontFamily: fonts.bold,
+      fontSize: 11,
+    },
+    footerSub: {
+      fontFamily: fonts.medium,
+      fontSize: 11,
+      color: c.textMuted,
+      opacity: 0.7,
+      includeFontPadding: false,
+    },
   });

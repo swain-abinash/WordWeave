@@ -1,0 +1,22 @@
+{
+  "major": 1,
+  "minor": 0,
+  "patch": 2,
+  "versionCode": 3,
+  "versionName": "1.0.2",
+  "buildDate": "2026-10-16",
+  "environments": {
+    "DEV": {
+      "suffix": "-dev",
+      "description": "Development environment with Google test ads and debug logs"
+    },
+    "UAT": {
+      "suffix": "-uat",
+      "description": "User Acceptance Testing for QA and pre-release validation"
+    },
+    "PROD": {
+      "suffix": "",
+      "description": "Production release for Google Play Store with live AdMob ads"
+    }
+  }
+}

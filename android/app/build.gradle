@@ -72,6 +72,35 @@ def enableProguardInReleaseBuilds = true
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
+import groovy.json.JsonSlurper
+
+def getAppVersionInfo() {
+    def versionFile = new File(rootProject.projectDir, '../version.json')
+    def vCode = 3
+    def vName = "1.0.2"
+    if (versionFile.exists()) {
+        try {
+            def parsed = new JsonSlurper().parseText(versionFile.text)
+            vCode = parsed.versionCode ?: 3
+            vName = parsed.versionName ?: "1.0.2"
+        } catch (Exception e) {
+            println("[Gradle] Warning: Could not parse version.json: ${e.message}")
+        }
+    }
+    
+    def env = project.hasProperty('appEnv') ? project.property('appEnv').toString().toUpperCase() : 'PROD'
+    def finalVersionName = vName
+    if (env == 'DEV') {
+        finalVersionName = "${vName}-dev"
+    } else if (env == 'UAT') {
+        finalVersionName = "${vName}-uat"
+    }
+    
+    return [code: vCode, name: finalVersionName, rawName: vName, env: env]
+}
+
+def versionInfo = getAppVersionInfo()
+
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -82,8 +111,8 @@ android {
         applicationId "com.wordweave"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 3
-        versionName "1.0.2"
+        versionCode versionInfo.code
+        versionName versionInfo.name
     }
     // One APK per CPU type instead of one big APK with all of them (~20 MB each instead of ~60 MB).
     // Phones use arm64-v8a (most) or armeabi-v7a (older); x86_64 is for the emulator.

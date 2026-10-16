@@ -1,13 +1,20 @@
 {
   "name": "WordWeave",
-  "version": "0.0.1",
+  "version": "1.0.2",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "version:status": "node scripts/version-manager.js status",
+    "version:patch": "node scripts/version-manager.js patch",
+    "version:minor": "node scripts/version-manager.js minor",
+    "version:major": "node scripts/version-manager.js major",
+    "build:dev": "node scripts/version-manager.js build dev",
+    "build:uat": "node scripts/version-manager.js build uat",
+    "build:prod": "node scripts/version-manager.js build prod"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",
