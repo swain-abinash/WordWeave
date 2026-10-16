@@ -22,6 +22,15 @@ export default function AdBanner({placement = 'bottom'}: Props) {
     return unsubscribe;
   }, []);
 
+  useEffect(() => {
+    if (failed) {
+      const retryTimer = setTimeout(() => {
+        setFailed(false);
+      }, 20000);
+      return () => clearTimeout(retryTimer);
+    }
+  }, [failed]);
+
   if (failed) {
     return null;
   }
@@ -37,7 +46,8 @@ export default function AdBanner({placement = 'bottom'}: Props) {
         onAdLoaded={() => {
           setFailed(false);
         }}
-        onAdFailedToLoad={() => {
+        onAdFailedToLoad={error => {
+          console.warn('[AdBanner] Failed to load:', error);
           setFailed(true);
         }}
       />
