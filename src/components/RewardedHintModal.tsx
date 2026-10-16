@@ -24,8 +24,6 @@ export default function RewardedHintModal({visible, onClose, onReward}: Props) {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const env = adService.getEnvironment();
-
   const handleWatchAd = async () => {
     setLoading(true);
     setErrorMessage(null);
@@ -58,12 +56,6 @@ export default function RewardedHintModal({visible, onClose, onReward}: Props) {
           <View style={styles.iconCircle}>
             <Icon name="hint" size={32} color={c.gold} />
           </View>
-
-          {env !== 'PROD' && (
-            <View style={styles.envBadge}>
-              <Text style={styles.envBadgeText}>{env} TEST MODE</Text>
-            </View>
-          )}
 
           <Text style={styles.kicker}>FREE HINT</Text>
           <Text style={styles.title}>Need a Clue?</Text>
@@ -130,19 +122,6 @@ const makeStyles = (c: Palette) =>
       alignItems: 'center',
       justifyContent: 'center',
       marginBottom: 16,
-    },
-    envBadge: {
-      backgroundColor: `${c.accent}22`,
-      paddingHorizontal: 10,
-      paddingVertical: 3,
-      borderRadius: 8,
-      marginBottom: 8,
-    },
-    envBadgeText: {
-      fontFamily: fonts.heavy,
-      fontSize: 10,
-      color: c.accent,
-      letterSpacing: 0.8,
     },
     kicker: {
       ...kicker(c),

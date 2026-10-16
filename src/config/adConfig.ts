@@ -70,5 +70,11 @@ export const AD_CONFIGS: Record<AppEnvironment, AdEnvironmentConfig> = {
   },
 };
 
-/** Default environment to start with */
-export const DEFAULT_ENV: AppEnvironment = 'DEV';
+/**
+ * Managed internally in code:
+ * - Automatically 'DEV' during development / debug builds (uses safe Google test ads).
+ * - Automatically 'PROD' in production release builds (uses live AdMob unit IDs).
+ * Can be manually overridden here to 'DEV' | 'UAT' | 'PROD'.
+ */
+export const ACTIVE_ENV: AppEnvironment = __DEV__ ? 'DEV' : 'PROD';
+export const DEFAULT_ENV: AppEnvironment = ACTIVE_ENV;
