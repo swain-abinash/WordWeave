@@ -31,7 +31,7 @@ export const AD_CONFIGS: Record<AppEnvironment, AdEnvironmentConfig> = {
   DEV: {
     env: 'DEV',
     name: 'Development',
-    appId: 'ca-app-pub-3940256099942544~3347511713',
+    appId: 'ca-app-pub-4740458746175706~1712612819',
     bannerId: TestIds.BANNER,
     interstitialId: TestIds.INTERSTITIAL,
     rewardedId: TestIds.REWARDED,
@@ -44,7 +44,7 @@ export const AD_CONFIGS: Record<AppEnvironment, AdEnvironmentConfig> = {
   UAT: {
     env: 'UAT',
     name: 'User Acceptance Testing',
-    appId: 'ca-app-pub-3940256099942544~3347511713',
+    appId: 'ca-app-pub-4740458746175706~1712612819',
     bannerId: TestIds.BANNER,
     interstitialId: TestIds.INTERSTITIAL,
     rewardedId: TestIds.REWARDED,
@@ -57,11 +57,10 @@ export const AD_CONFIGS: Record<AppEnvironment, AdEnvironmentConfig> = {
   PROD: {
     env: 'PROD',
     name: 'Production',
-    // Replace with your real AdMob unit IDs when your AdMob account is active
-    appId: 'ca-app-pub-3940256099942544~3347511713', // Replace with real production App ID
-    bannerId: 'ca-app-pub-3940256099942544/6300978111', // Replace with real Banner Ad Unit ID
-    interstitialId: 'ca-app-pub-3940256099942544/1033173712', // Replace with real Interstitial Ad Unit ID
-    rewardedId: 'ca-app-pub-3940256099942544/5224354917', // Replace with real Rewarded Ad Unit ID
+    appId: 'ca-app-pub-4740458746175706~1712612819',
+    bannerId: 'ca-app-pub-4740458746175706/8931882420',
+    interstitialId: 'ca-app-pub-4740458746175706/6677999034',
+    rewardedId: 'ca-app-pub-4740458746175706/7586002002',
     interstitialInterval: 3,
     freeHintsPerLevel: 2,
     debugLogs: false,
