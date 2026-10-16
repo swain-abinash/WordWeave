@@ -73,6 +73,6 @@ We may update this Privacy Policy from time to time. Any changes will be reflect
 
 If you have any questions, feedback, or concerns regarding this Privacy Policy or our practices, please contact us at:
 
-- **Developer / Publisher**: Swain Abinash (WordWeave Team)
-- **Email**: [swainabinash36@gmail.com](mailto:swainabinash36@gmail.com)
+- **Developer / Publisher**: Swain Abinash & Paragsurya Nayak (WordWeave Team)
+- **Email**: [swainabinash36@gmail.com](mailto:swainabinash36@gmail.com) / [nayakparagsurya@gmail.com](mailto:nayakparagsurya@gmail.com)
 - **Repository**: [https://github.com/swain-abinash/WordWeave](https://github.com/swain-abinash/WordWeave)

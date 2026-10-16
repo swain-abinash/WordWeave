@@ -40,6 +40,7 @@ Download WordWeave today and start your word-weaving adventure!
 | :--- | :--- | :--- | :---: |
 | **App Icon** | 512 x 512 px, 32-bit PNG | `store_assets/icon_512.png` | ✅ Ready |
 | **Feature Graphic** | 1024 x 500 px, JPG or 24-bit PNG | `store_assets/feature_graphic.png` | ✅ Ready |
+| **Phone Screenshots** | 1080 x 2400 px, 16:9 / 9:16 PNG (5 screens) | `store_assets/screenshots/*.png` | ✅ Ready |
 | **App Bundle (.aab)** | Signed Android App Bundle | `android/app/build/outputs/bundle/release/app-release.aab` | ✅ Ready |
 | **Privacy Policy URL** | Publicly accessible web link | `PRIVACY_POLICY.md` (host on GitHub Pages or personal site) | ✅ Ready |
 
@@ -75,3 +76,10 @@ Download WordWeave today and start your word-weaving adventure!
 
 ### E. Ads Declaration
 - Does your app contain ads? **Yes** (Select *"Yes, my app contains ads"*).
+
+### F. Developer Contact Details
+- Contact Emails:
+  - `swainabinash36@gmail.com`
+  - `nayakparagsurya@gmail.com`
+- Privacy Policy URL: (Provide hosted link to `PRIVACY_POLICY.md`)
+
