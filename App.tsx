@@ -9,6 +9,8 @@ import LevelsScreen from './src/screens/LevelsScreen';
 import {ProgressProvider, useProgress} from './src/state/ProgressContext';
 import {ThemeProvider, useTheme} from './src/state/ThemeContext';
 
+import {adService} from './src/services/adService';
+
 type Route = {name: 'home'} | {name: 'levels'} | {name: 'game'; level: number};
 
 function Navigator() {
@@ -16,6 +18,10 @@ function Navigator() {
   const {c} = useTheme();
   const [stack, setStack] = useState<Route[]>([{name: 'home'}]);
   const route = stack[stack.length - 1];
+
+  useEffect(() => {
+    adService.initialize();
+  }, []);
 
   const push = (r: Route) => setStack(s => [...s, r]);
   const pop = () => setStack(s => (s.length > 1 ? s.slice(0, -1) : s));

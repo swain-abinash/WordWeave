@@ -1,11 +1,14 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Animated, Easing, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import AdBanner from '../components/AdBanner';
 import BrandMark from '../components/BrandMark';
+import DevAdModal from '../components/DevAdModal';
 import HowToPlay from '../components/HowToPlay';
 import Icon, {IconName} from '../components/Icon';
 import {GradientFill, PressableScale, ThemeToggle} from '../components/ui';
 import {TOTAL_LEVELS} from '../data/levels';
+import {adService} from '../services/adService';
 import {formatTime, useProgress} from '../state/ProgressContext';
 import {ThemeMode, useStyles, useTheme} from '../state/ThemeContext';
 import {fonts, kicker, Palette, radius, logoPalette} from '../theme';
@@ -58,6 +61,13 @@ export default function HomeScreen({onPlay, onLevels}: Props) {
   const {c, mode, setMode} = useTheme();
   const styles = useStyles(makeStyles);
   const [rules, setRules] = useState(false);
+  const [showAdModal, setShowAdModal] = useState(false);
+  const [env, setEnv] = useState(adService.getEnvironment());
+  useEffect(() => {
+    return adService.addListener(() => {
+      setEnv(adService.getEnvironment());
+    });
+  }, []);
   const cleared = Object.keys(progress.stars).length;
   const pct = cleared / TOTAL_LEVELS;
   const save = progress.saves[currentLevel];
@@ -167,10 +177,33 @@ export default function HomeScreen({onPlay, onLevels}: Props) {
               })}
             </View>
           </View>
+
+          <PressableScale
+            onPress={() => setShowAdModal(true)}
+            accessibilityLabel={`Ads and Mode, current environment is ${env}`}
+            style={styles.adCard}>
+            <View style={styles.adCardLeft}>
+              <View style={[styles.adIconWrap, {backgroundColor: `${c.accent}22`}]}>
+                <Icon name="sparkles" size={16} color={c.accent} />
+              </View>
+              <View>
+                <Text style={styles.adCardTitle}>Ads & Mode</Text>
+                <Text style={styles.adCardSubtitle}>Test Rewarded & Interstitial</Text>
+              </View>
+            </View>
+            <View style={[styles.envBadge, {backgroundColor: env === 'PROD' ? `${c.success}22` : `${c.accent}22`}]}>
+              <Text style={[styles.envBadgeText, {color: env === 'PROD' ? c.success : c.accent}]}>
+                {env}
+              </Text>
+              <Icon name="arrowRight" size={12} color={c.textMuted} />
+            </View>
+          </PressableScale>
         </Animated.View>
       </ScrollView>
 
+      <AdBanner placement="bottom" />
       <HowToPlay visible={rules} onClose={() => setRules(false)} />
+      <DevAdModal visible={showAdModal} onClose={() => setShowAdModal(false)} />
     </SafeAreaView>
   );
 }
@@ -439,4 +472,55 @@ const makeStyles = (c: Palette) =>
     segBtnOn: {backgroundColor: c.accent},
     segText: {color: c.textDim, fontSize: 13, fontFamily: fonts.semibold, includeFontPadding: false},
     segTextOn: {color: c.onAccent},
+    adCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginTop: 8,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      borderRadius: radius.lg,
+      backgroundColor: c.card,
+      borderWidth: 1,
+      borderColor: c.cardBorder,
+    },
+    adCardLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+    },
+    adIconWrap: {
+      width: 32,
+      height: 32,
+      borderRadius: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    adCardTitle: {
+      color: c.text,
+      fontSize: 14,
+      fontFamily: fonts.bold,
+      includeFontPadding: false,
+    },
+    adCardSubtitle: {
+      color: c.textDim,
+      fontSize: 12,
+      fontFamily: fonts.medium,
+      marginTop: 2,
+      includeFontPadding: false,
+    },
+    envBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: 8,
+    },
+    envBadgeText: {
+      fontFamily: fonts.heavy,
+      fontSize: 11,
+      letterSpacing: 0.5,
+      includeFontPadding: false,
+    },
   });

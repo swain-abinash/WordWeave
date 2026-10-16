@@ -13,9 +13,11 @@ import Board from '../components/Board';
 import HowToPlay from '../components/HowToPlay';
 import Icon, {IconName} from '../components/Icon';
 import {IconButton, PressableScale, ThemeToggle} from '../components/ui';
+import RewardedHintModal from '../components/RewardedHintModal';
 import WinModal from '../components/WinModal';
 import WordSlots from '../components/WordSlots';
 import {getLevel, TOTAL_LEVELS} from '../data/levels';
+import {adService} from '../services/adService';
 import {formatTime, useProgress} from '../state/ProgressContext';
 import {useStyles, useTheme} from '../state/ThemeContext';
 import {fonts, kicker, Palette, radius, Swatch} from '../theme';
@@ -69,6 +71,7 @@ export default function GameScreen({levelId, onBack, onNext, onLevels}: Props) {
   );
   useEffect(() => () => clearTimeout(flashTimer.current), []);
   const [showRules, setShowRules] = useState<boolean>(levelId === 1 && !saved);
+  const [showHintModal, setShowHintModal] = useState<boolean>(false);
 
   const shake = useRef(new Animated.Value(0)).current;
   const fbOpacity = useRef(new Animated.Value(0)).current;
@@ -293,10 +296,7 @@ export default function GameScreen({levelId, onBack, onNext, onLevels}: Props) {
     say('Board cleared. Fresh start!', 'info');
   };
 
-  const hint = () => {
-    if (solved) {
-      return;
-    }
+  const applyHint = () => {
     const open = unfound().filter(
       i => (reveals[i] ?? 0) < level.words[i].word.length,
     );
@@ -308,6 +308,25 @@ export default function GameScreen({levelId, onBack, onNext, onLevels}: Props) {
     setReveals(r => ({...r, [target]: (r[target] ?? 0) + 1}));
     setHintsUsed(h => h + 1);
     say('Start from the gold letter', 'route');
+  };
+
+  const hint = () => {
+    if (solved) {
+      return;
+    }
+    const open = unfound().filter(
+      i => (reveals[i] ?? 0) < level.words[i].word.length,
+    );
+    if (!open.length) {
+      say('All letters shown. Trace the gold tiles', 'info');
+      return;
+    }
+    const freeAllowed = adService.getConfig().freeHintsPerLevel;
+    if (hintsUsed < freeAllowed) {
+      applyHint();
+    } else {
+      setShowHintModal(true);
+    }
   };
 
   // ---- layout: fit header + words + board + toolbar on one screen
@@ -437,7 +456,12 @@ export default function GameScreen({levelId, onBack, onNext, onLevels}: Props) {
         <Tool icon="reset" label="Reset" onPress={reset} disabled={!canUndo} />
         <Tool
           icon="hint"
-          label="Hint"
+          label={
+            hintsUsed >= adService.getConfig().freeHintsPerLevel
+              ? 'Hint (Ad)'
+              : 'Hint'
+          }
+          accessibilityLabel="Hint"
           onPress={hint}
           disabled={solved}
           tint={c.gold}
@@ -452,8 +476,16 @@ export default function GameScreen({levelId, onBack, onNext, onLevels}: Props) {
         time={elapsed}
         bestTime={progress.bestTimes[levelId]}
         isLast={levelId === TOTAL_LEVELS}
-        onNext={() => onNext(levelId + 1)}
+        onNext={async () => {
+          await adService.showInterstitialIfEligible(levelId);
+          onNext(levelId + 1);
+        }}
         onLevels={onLevels}
+      />
+      <RewardedHintModal
+        visible={showHintModal}
+        onClose={() => setShowHintModal(false)}
+        onReward={applyHint}
       />
       <HowToPlay visible={showRules} onClose={() => setShowRules(false)} />
     </SafeAreaView>
@@ -463,12 +495,14 @@ export default function GameScreen({levelId, onBack, onNext, onLevels}: Props) {
 function Tool({
   icon,
   label,
+  accessibilityLabel,
   onPress,
   disabled,
   tint,
 }: {
   icon: IconName;
   label: string;
+  accessibilityLabel?: string;
   onPress: () => void;
   disabled?: boolean;
   tint?: string;
@@ -480,7 +514,7 @@ function Tool({
       onPress={onPress}
       disabled={disabled}
       style={styles.tool}
-      accessibilityLabel={label}>
+      accessibilityLabel={accessibilityLabel ?? label}>
       <Icon name={icon} size={18} color={tint ?? c.text} />
       <Text style={styles.toolText}>{label}</Text>
     </PressableScale>

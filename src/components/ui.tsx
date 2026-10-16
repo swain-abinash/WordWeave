@@ -58,13 +58,14 @@ type ButtonProps = {
   subtitle?: string;
   onPress: () => void;
   variant?: 'primary' | 'secondary';
+  disabled?: boolean;
   icon?: IconName;
   /** Put the icon after the label, e.g. a forward arrow. */
   iconAfter?: boolean;
   style?: StyleProp<ViewStyle>;
 };
 
-export function Button({title, subtitle, onPress, variant = 'primary', icon, iconAfter, style}: ButtonProps) {
+export function Button({title, subtitle, onPress, variant = 'primary', disabled, icon, iconAfter, style}: ButtonProps) {
   const {c} = useTheme();
   const styles = useStyles(makeStyles);
   const primary = variant === 'primary';
@@ -76,6 +77,7 @@ export function Button({title, subtitle, onPress, variant = 'primary', icon, ico
   return (
     <PressableScale
       onPress={onPress}
+      disabled={disabled}
       accessibilityLabel={subtitle ? `${title}, ${subtitle}` : title}
       style={[styles.btn, primary ? styles.primary : styles.secondary, style]}>
       {primary ? <GradientFill /> : null}
