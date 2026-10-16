@@ -102,15 +102,31 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            if (project.hasProperty('WORDWEAVE_RELEASE_STORE_FILE')) {
+                storeFile file(WORDWEAVE_RELEASE_STORE_FILE)
+                storePassword WORDWEAVE_RELEASE_STORE_PASSWORD
+                keyAlias WORDWEAVE_RELEASE_KEY_ALIAS
+                keyPassword WORDWEAVE_RELEASE_KEY_PASSWORD
+            } else if (file('wordweave-release-key.keystore').exists()) {
+                storeFile file('wordweave-release-key.keystore')
+                storePassword 'wordweave2026'
+                keyAlias 'wordweave-key-alias'
+                keyPassword 'wordweave2026'
+            } else {
+                storeFile file('debug.keystore')
+                storePassword 'android'
+                keyAlias 'androiddebugkey'
+                keyPassword 'android'
+            }
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             shrinkResources enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
