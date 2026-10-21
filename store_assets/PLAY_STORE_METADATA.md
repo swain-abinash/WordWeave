@@ -9,6 +9,9 @@ All details below are formatted to match Google Play Console character limits an
 - **App Name** (max 30 characters):  
   `WordWeave: Path Word Puzzle`
 
+- **Package Name**:  
+  `com.wordweave.puzzle`
+
 - **Short Description** (max 80 characters):  
   `Weave the path, connect the letters, and solve 200 handcrafted word puzzles!`
 

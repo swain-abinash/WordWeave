@@ -108,7 +108,7 @@ android {
 
     namespace "com.wordweave"
     defaultConfig {
-        applicationId "com.wordweave"
+        applicationId "com.wordweave.puzzle"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode versionInfo.code
