@@ -1,10 +1,10 @@
 {
   "major": 1,
   "minor": 0,
-  "patch": 2,
-  "versionCode": 3,
-  "versionName": "1.0.2",
-  "buildDate": "2026-10-16",
+  "patch": 3,
+  "versionCode": 4,
+  "versionName": "1.0.3",
+  "buildDate": "2026-10-21",
   "environments": {
     "DEV": {
       "suffix": "-dev",
