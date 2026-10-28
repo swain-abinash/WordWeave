@@ -10,6 +10,7 @@ import {ProgressProvider, useProgress} from './src/state/ProgressContext';
 import {ThemeProvider, useTheme} from './src/state/ThemeContext';
 
 import {adService} from './src/services/adService';
+import {runStartupIntegrityCheck} from './src/security/antiTamper';
 
 type Route = {name: 'home'} | {name: 'levels'} | {name: 'game'; level: number};
 
@@ -20,6 +21,7 @@ function Navigator() {
   const route = stack[stack.length - 1];
 
   useEffect(() => {
+    runStartupIntegrityCheck();
     adService.initialize();
   }, []);
 

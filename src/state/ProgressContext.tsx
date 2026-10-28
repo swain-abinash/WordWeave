@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, {createContext, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
+import {secureLoad, secureSave} from '../security/secureStorage';
+import {validateLevelCompletion} from '../security/antiCheat';
 import {TOTAL_LEVELS} from '../data/levels';
 
 // v2: Wend-rules levels (walls, 3/4/5/6 words). v1 saves pointed at different boards.
@@ -55,11 +57,9 @@ export function ProgressProvider({children}: {children: React.ReactNode}) {
   const hydrated = useRef(false);
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY)
-      .then(json => {
-        if (json) {
-          setProgress({...initialProgress, ...JSON.parse(json)});
-        }
+    secureLoad<Progress>(STORAGE_KEY, initialProgress)
+      .then(loaded => {
+        setProgress({...initialProgress, ...loaded});
       })
       .catch(() => {})
       .finally(() => {
@@ -72,7 +72,7 @@ export function ProgressProvider({children}: {children: React.ReactNode}) {
     if (!hydrated.current) {
       return;
     }
-    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(progress)).catch(() => {});
+    secureSave(STORAGE_KEY, progress).catch(() => {});
   }, [progress]);
 
   const saveLevel = useCallback((id: number, save: LevelSave) => {
@@ -85,6 +85,13 @@ export function ProgressProvider({children}: {children: React.ReactNode}) {
 
   const completeLevel = useCallback((id: number, stars: number, seconds: number) => {
     setProgress(p => {
+      const validation = validateLevelCompletion(id, seconds, p.unlocked);
+      if (!validation.legitimate) {
+        if (__DEV__) {
+          console.warn('[Anti-Cheat Guard] Level completion rejected:', validation.reason);
+        }
+        return p;
+      }
       const saves = {...p.saves};
       delete saves[id];
       const best = p.bestTimes[id];

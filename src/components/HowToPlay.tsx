@@ -8,10 +8,11 @@ import {Button} from './ui';
 const rules = (c: Palette): [IconName, string, string, string][] => [
   ['letters', c.accentSoft, 'Find 4 hidden words', 'Every board hides four words: 3, 4, 5 and 6 letters long. The bubbles show only how long each word is.'],
   ['swipe', '#38BDF8', 'Wind through the grid', 'Tap or drag across letters that touch up, down, left or right. No diagonals. Words can turn corners and bend around gray walls.'],
+  ['heart', c.danger, '3 Chances per word', 'You have 3 attempts for each word. If you miss 3 times, watch a quick video to reveal a hint & refill your chances, or a 4th mistake resets the level!'],
   ['grid', c.success, 'Use every letter once', 'Each letter belongs to exactly one word. A word locks in as soon as you trace its full path.'],
   ['route', c.gold, 'Right word, wrong path', 'A gold message means the word is correct, but the board needs it traced a different way.'],
   ['undo', '#F472B6', 'Undo and Reset', 'Undo removes your last letter or last word. Reset clears the whole board.'],
-  ['hint', '#FB923C', 'Hints', 'Each hint shows one more letter of a word in gold. Solve with no hints for 3 stars.'],
+  ['hint', '#FB923C', 'Hints & Ads', 'Each hint shows one more letter of a word in gold. Solve with no hints for 3 stars.'],
 ];
 
 export default function HowToPlay({visible, onClose}: {visible: boolean; onClose: () => void}) {

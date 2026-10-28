@@ -28,6 +28,15 @@ class AdService {
   private isRewardedLoaded = false;
   private isRewardedLoading = false;
 
+  private interstitialRetryTimer: ReturnType<typeof setTimeout> | null = null;
+  private rewardedRetryTimer: ReturnType<typeof setTimeout> | null = null;
+
+  // Layer 4: Fraud & Ban Guard (Rate Limiting)
+  private lastInterstitialShownTime = 0;
+  private lastRewardedShownTime = 0;
+  private readonly MIN_INTERSTITIAL_INTERVAL_MS = 25000;
+  private readonly MIN_REWARDED_INTERVAL_MS = 4000;
+
   private listeners: Set<() => void> = new Set();
 
   private log(message: string, ...args: unknown[]) {
@@ -179,6 +188,13 @@ class AdService {
           unsubscribeClosed();
           unsubscribeError();
           this.notifyListeners();
+
+          if (this.interstitialRetryTimer) {
+            clearTimeout(this.interstitialRetryTimer);
+          }
+          this.interstitialRetryTimer = setTimeout(() => {
+            this.loadInterstitial();
+          }, 8000);
         },
       );
 
@@ -204,9 +220,16 @@ class AdService {
       return false;
     }
 
+    const now = Date.now();
+    if (now - this.lastInterstitialShownTime < this.MIN_INTERSTITIAL_INTERVAL_MS) {
+      this.log('Layer 4 Fraud Guard: Interstitial throttled to protect AdMob account integrity');
+      return false;
+    }
+
     if (this.interstitialAd && this.isInterstitialLoaded) {
       try {
         await this.interstitialAd.show();
+        this.lastInterstitialShownTime = Date.now();
         return true;
       } catch (err) {
         this.log('Failed to show Interstitial Ad:', err);
@@ -272,6 +295,13 @@ class AdService {
           unsubscribeLoaded();
           unsubscribeError();
           this.notifyListeners();
+
+          if (this.rewardedRetryTimer) {
+            clearTimeout(this.rewardedRetryTimer);
+          }
+          this.rewardedRetryTimer = setTimeout(() => {
+            this.loadRewarded();
+          }, 6000);
         },
       );
 
@@ -292,20 +322,54 @@ class AdService {
     onClosed?: () => void,
     onError?: (error: Error) => void,
   ): Promise<void> {
-    if (!this.rewardedAd || !this.isRewardedLoaded) {
-      this.log('Rewarded Ad not ready');
+    const now = Date.now();
+    if (now - this.lastRewardedShownTime < this.MIN_REWARDED_INTERVAL_MS) {
+      this.log('Layer 4 Fraud Guard: Rewarded ad request debounced');
+      return;
+    }
 
-      // In DEV mode, if ad server is unreachable, we can grant fallback reward
-      if (this.config.allowSimulatedRewardOnFailure) {
-        this.log('DEV fallback: granting reward because ad is not ready');
-        onRewardEarned();
+    // If ad is not yet ready, show spinner and wait up to 8s for it to load
+    if (!this.rewardedAd || !this.isRewardedLoaded) {
+      this.log('Rewarded Ad not ready; attempting on-demand wait...');
+      if (!this.isRewardedLoading) {
+        this.loadRewarded();
+      }
+
+      const waitForAd = new Promise<boolean>(resolve => {
+        const timeout = setTimeout(() => {
+          unsubscribe();
+          resolve(false);
+        }, 8000);
+
+        const unsubscribe = this.addListener(() => {
+          if (this.isRewardedLoaded) {
+            clearTimeout(timeout);
+            unsubscribe();
+            resolve(true);
+          }
+        });
+      });
+
+      const ready = await waitForAd;
+
+      if (!ready || !this.rewardedAd) {
+        this.log('Rewarded Ad wait timed out');
+
+        if (this.config.allowSimulatedRewardOnFailure) {
+          this.log('DEV fallback: granting reward because ad is not ready');
+          onRewardEarned();
+          this.loadRewarded();
+          return;
+        }
+
+        onError?.(
+          new Error(
+            'Ad is still loading. Please check your internet connection and try again in a few seconds.',
+          ),
+        );
         this.loadRewarded();
         return;
       }
-
-      onError?.(new Error('Ad is still loading. Please check internet and try again.'));
-      this.loadRewarded();
-      return;
     }
 
     let earned = false;
@@ -333,6 +397,7 @@ class AdService {
     });
 
     try {
+      this.lastRewardedShownTime = Date.now();
       await ad.show();
     } catch (showError) {
       this.log('Error displaying Rewarded Ad:', showError);

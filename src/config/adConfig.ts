@@ -1,4 +1,5 @@
 import {TestIds} from 'react-native-google-mobile-ads';
+import {getSecureAdId} from '../security/obfuscation';
 
 export type AppEnvironment = 'DEV' | 'UAT' | 'PROD';
 
@@ -49,7 +50,7 @@ export const AD_CONFIGS: Record<AppEnvironment, AdEnvironmentConfig> = {
     interstitialId: TestIds.INTERSTITIAL,
     rewardedId: TestIds.REWARDED,
     interstitialInterval: 3,
-    freeHintsPerLevel: 2,
+    freeHintsPerLevel: 0,
     debugLogs: true,
     tag: 'UAT',
     allowSimulatedRewardOnFailure: false,
@@ -57,12 +58,12 @@ export const AD_CONFIGS: Record<AppEnvironment, AdEnvironmentConfig> = {
   PROD: {
     env: 'PROD',
     name: 'Production',
-    appId: 'ca-app-pub-4740458746175706~1712612819',
-    bannerId: 'ca-app-pub-4740458746175706/8931882420',
-    interstitialId: 'ca-app-pub-4740458746175706/6677999034',
-    rewardedId: 'ca-app-pub-4740458746175706/7586002002',
+    appId: getSecureAdId('APP_ID'),
+    bannerId: getSecureAdId('BANNER'),
+    interstitialId: getSecureAdId('INTERSTITIAL'),
+    rewardedId: getSecureAdId('REWARDED'),
     interstitialInterval: 3,
-    freeHintsPerLevel: 2,
+    freeHintsPerLevel: 0,
     debugLogs: false,
     tag: '',
     allowSimulatedRewardOnFailure: false,

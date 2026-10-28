@@ -14,6 +14,8 @@ import HowToPlay from '../components/HowToPlay';
 import Icon, {IconName} from '../components/Icon';
 import {IconButton, PressableScale, ThemeToggle} from '../components/ui';
 import RewardedHintModal from '../components/RewardedHintModal';
+import StrikeWarningModal from '../components/StrikeWarningModal';
+import LevelFailedModal from '../components/LevelFailedModal';
 import WinModal from '../components/WinModal';
 import WordSlots from '../components/WordSlots';
 import {getLevel, TOTAL_LEVELS} from '../data/levels';
@@ -72,6 +74,9 @@ export default function GameScreen({levelId, onBack, onNext, onLevels}: Props) {
   useEffect(() => () => clearTimeout(flashTimer.current), []);
   const [showRules, setShowRules] = useState<boolean>(levelId === 1 && !saved);
   const [showHintModal, setShowHintModal] = useState<boolean>(false);
+  const [wrongAttempts, setWrongAttempts] = useState<number>(0);
+  const [showStrikeWarning, setShowStrikeWarning] = useState<boolean>(false);
+  const [showLevelFailed, setShowLevelFailed] = useState<boolean>(false);
 
   const shake = useRef(new Animated.Value(0)).current;
   const fbOpacity = useRef(new Animated.Value(0)).current;
@@ -198,6 +203,7 @@ export default function GameScreen({levelId, onBack, onNext, onLevels}: Props) {
     state.current = {...state.current, found: next}; // visible to gesture events before the re-render
     setFound(next);
     setSelection([]);
+    setWrongAttempts(0); // Reset chances for next word
     recordWord();
     if (next.length === level.words.length) {
       const s = state.current;
@@ -208,6 +214,53 @@ export default function GameScreen({levelId, onBack, onNext, onLevels}: Props) {
       say(`${level.words[idx].word}! Nice find`, 'success');
     }
     return true;
+  };
+
+  const handleWrongAttempt = (letters: string, isNear: boolean = false) => {
+    const next = wrongAttempts + 1;
+    setWrongAttempts(next);
+
+    if (next === 1) {
+      say(
+        isNear
+          ? `${letters} is a hidden word. Try another path (Strike 1/3)`
+          : `${letters} is not hidden (Strike 1/3)`,
+        isNear ? 'route' : 'miss',
+      );
+      doShake();
+    } else if (next === 2) {
+      say(
+        isNear
+          ? `${letters} is a hidden word. Try another path (Strike 2/3)`
+          : 'Strike 2/3! Only 1 chance remaining',
+        isNear ? 'route' : 'miss',
+      );
+      doShake();
+    } else if (next === 3) {
+      say('3 Strikes! Watch Ad to protect level', 'miss');
+      doShake();
+      setTimeout(() => {
+        setShowStrikeWarning(true);
+      }, 400);
+    } else if (next >= 4) {
+      Vibration.vibrate([0, 80, 50, 100]);
+      doShake();
+      setFound([]);
+      setReveals({});
+      setWrongAttempts(0);
+      setSelection([]);
+      const s = state.current;
+      state.current = {...s, found: [], reveals: {}};
+      saveLevel(levelId, {
+        found: [],
+        hintsUsed: s.hintsUsed,
+        reveals: {},
+        elapsed: s.elapsed,
+      });
+      setTimeout(() => {
+        setShowLevelFailed(true);
+      }, 400);
+    }
   };
 
   /** Tell the player why a finished path didn't count, then clear it. */
@@ -221,11 +274,10 @@ export default function GameScreen({levelId, onBack, onNext, onLevels}: Props) {
     };
     if (unfound().some(i => level.words[i].word === letters)) {
       showFlash(c.near);
-      say(`${letters} is a hidden word. Try another path`, 'route');
+      handleWrongAttempt(letters, true);
     } else if (cells.length >= 3) {
       showFlash(c.wrong);
-      say(`${letters} is not a hidden word`, 'miss');
-      doShake();
+      handleWrongAttempt(letters, false);
     }
   };
 
@@ -293,6 +345,7 @@ export default function GameScreen({levelId, onBack, onNext, onLevels}: Props) {
     }
     setFound([]);
     setSelection([]);
+    setWrongAttempts(0);
     say('Board cleared. Fresh start!', 'info');
   };
 
@@ -307,6 +360,7 @@ export default function GameScreen({levelId, onBack, onNext, onLevels}: Props) {
     const target = open.find(i => (reveals[i] ?? 0) > 0) ?? open[0];
     setReveals(r => ({...r, [target]: (r[target] ?? 0) + 1}));
     setHintsUsed(h => h + 1);
+    setWrongAttempts(0); // Hint resets chances
     say('Start from the gold letter', 'route');
   };
 
@@ -405,6 +459,37 @@ export default function GameScreen({levelId, onBack, onNext, onLevels}: Props) {
       <View style={styles.wordsCard}>
         <View style={styles.wordsHead}>
           <Text style={styles.wordsTitle}>Hidden words</Text>
+          <View style={styles.chancesPill}>
+            <View style={styles.heartsRow}>
+              {[1, 2, 3].map(heartIndex => {
+                const isLost = wrongAttempts >= heartIndex;
+                return (
+                  <Icon
+                    key={heartIndex}
+                    name={isLost ? 'heartOutline' : 'heart'}
+                    size={14}
+                    color={
+                      isLost
+                        ? c.textMuted
+                        : wrongAttempts === 2
+                        ? c.gold
+                        : wrongAttempts >= 3
+                        ? c.danger
+                        : c.danger
+                    }
+                  />
+                );
+              })}
+            </View>
+            <Text
+              style={[
+                styles.chancesText,
+                wrongAttempts === 2 && {color: c.gold},
+                wrongAttempts >= 3 && {color: c.danger},
+              ]}>
+              {Math.max(0, 3 - wrongAttempts)}/3
+            </Text>
+          </View>
           <View style={styles.progress}>
             {level.words.map((_, i) => (
               <View
@@ -486,6 +571,32 @@ export default function GameScreen({levelId, onBack, onNext, onLevels}: Props) {
         visible={showHintModal}
         onClose={() => setShowHintModal(false)}
         onReward={applyHint}
+      />
+      <StrikeWarningModal
+        visible={showStrikeWarning}
+        onClose={() => {
+          setShowStrikeWarning(false);
+          say('Warning: 1 mistake left before level resets!', 'miss');
+        }}
+        onReward={() => {
+          applyHint();
+          setWrongAttempts(0);
+          setShowStrikeWarning(false);
+          say('Chances refilled & hint revealed!', 'success');
+        }}
+      />
+      <LevelFailedModal
+        visible={showLevelFailed}
+        onRestart={() => {
+          setShowLevelFailed(false);
+          say('Level reset. Start from Word 1!', 'info');
+        }}
+        onRewardHint={() => {
+          setShowLevelFailed(false);
+          applyHint();
+          setWrongAttempts(0);
+          say('Hint revealed for Word 1! Fresh start', 'success');
+        }}
       />
       <HowToPlay visible={showRules} onClose={() => setShowRules(false)} />
     </SafeAreaView>
@@ -579,6 +690,28 @@ const makeStyles = (c: Palette) =>
     wordsTitle: {
       color: c.text,
       fontSize: 15,
+      fontFamily: fonts.bold,
+      includeFontPadding: false,
+    },
+    chancesPill: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 5,
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+      borderRadius: 10,
+      backgroundColor: c.bgElevated,
+      borderWidth: 1,
+      borderColor: c.cardBorder,
+    },
+    heartsRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 3,
+    },
+    chancesText: {
+      color: c.textDim,
+      fontSize: 12,
       fontFamily: fonts.bold,
       includeFontPadding: false,
     },

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    WordWeave Network Security Shield - Layer 7 Security
+    - Disallows all cleartext HTTP traffic across the entire app
+    - Restricts trust anchors exclusively to system CA certificates
+    - Prevents Man-in-the-Middle (MitM) sniffing, user-installed proxies (Burp, Charles, Fiddler)
+      from intercepting or tampering with AdMob ad rewards.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    <domain-config>
+        <domain includeSubdomains="true">google.com</domain>
+        <domain includeSubdomains="true">googleapis.com</domain>
+        <domain includeSubdomains="true">googleadservices.com</domain>
+        <domain includeSubdomains="true">app-ads-txt.com</domain>
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </domain-config>
+</network-security-config>
