@@ -59,9 +59,21 @@ export const AD_CONFIGS: Record<AppEnvironment, AdEnvironmentConfig> = {
     env: 'PROD',
     name: 'Production',
     appId: getSecureAdId('APP_ID'),
-    bannerId: getSecureAdId('BANNER'),
-    interstitialId: getSecureAdId('INTERSTITIAL'),
-    rewardedId: getSecureAdId('REWARDED'),
+
+    // ==============================================================
+    // ❌ REAL IDS (Temporarily commented for 14-Day Closed Testing to prevent AdMob limit)
+    // ==============================================================
+    // bannerId: getSecureAdId('BANNER'),
+    // interstitialId: getSecureAdId('INTERSTITIAL'),
+    // rewardedId: getSecureAdId('REWARDED'),
+
+    // ==============================================================
+    // ✅ GOOGLE TEST IDS (Active during Closed Testing with 12 testers)
+    // ==============================================================
+    bannerId: TestIds.BANNER,
+    interstitialId: TestIds.INTERSTITIAL,
+    rewardedId: TestIds.REWARDED,
+
     interstitialInterval: 3,
     freeHintsPerLevel: 0,
     debugLogs: false,
